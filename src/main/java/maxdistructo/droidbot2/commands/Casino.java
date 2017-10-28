@@ -2,33 +2,26 @@ package maxdistructo.droidbot2.commands;
 
 import maxdistructo.droidbot2.background.*;
 import maxdistructo.droidbot2.background.message.Message;
-import net.dv8tion.jda.core.entities.Member;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.EmbedBuilder;
 
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
-
 
 public class Casino{
     //@Command(aliases = {"/casino" }, description = "Casino Commands.", usage = "/casino [payday|balance]")
-    public static NumberFormat nf = NumberFormat.getInstance();
+    private static NumberFormat nf = NumberFormat.getInstance();
     public static String onCasinoCommand(Object[] args, IMessage message, IUser mentioned) {
         IUser author = message.getAuthor();
 
         if(args[1].equals("join")){
             Config.newCasino(message);
-            return "You have been registered to join Doggo Casino";
+            message.delete();
+            return "You have been registered to join "+ message.getGuild().getName() + " Casino";
         }
+
         else if(args.length == 2){
             if(args[1].equals("payday") && !Roles.checkForPayday(message)){
                 checkMembership(message);
@@ -102,6 +95,37 @@ public class Casino{
                     payday(message,message.getAuthor());
                     return author.mention(true) + "Your payday is ready!";
                 }
+                else if(Config.MEMBERSHIP.equals(":star:")){
+                    Config.CHIPS += 7500;
+                    Config.writeCasino(message);
+                    Message.sendMessage(message.getChannel(), casinoPayday(message, 7500));
+                    payday(message,message.getAuthor());
+                    return author.mention(true) + "Your payday is ready!";
+                }
+                else if(Config.MEMBERSHIP.equals(":star::star:")){
+                    Config.CHIPS += 9000;
+                    Config.writeCasino(message);
+                    Message.sendMessage(message.getChannel(), casinoPayday(message, 9000));
+                    payday(message,message.getAuthor());
+                    return author.mention(true) + "Your payday is ready!";
+                }
+                else if(Config.MEMBERSHIP.equals(":star::star::star:")){
+                    Config.CHIPS += 9000;
+                    Config.writeCasino(message);
+                    Message.sendMessage(message.getChannel(), casinoPayday(message, 9000));
+                    payday(message, message.getAuthor());
+                    return author.mention(true) + "Your payday is ready!";
+                }
+                else if(Config.MEMBERSHIP.equals(":star::star::star::star:")){
+                    Config.CHIPS += 12000;
+                    Config.writeCasino(message);
+                    Message.sendMessage(message.getChannel(), casinoPayday(message, 12000));
+                    payday(message, message.getAuthor());
+                    return author.mention(true)+ "Your payday is ready!";
+                }
+                else if(Config.MEMBERSHIP.equals(":star::star::star::star::star:")){
+
+                }
                 else{
                     return "Command "+ Listener.prefix +"casino payday has errored. Your balance has not been affected.";
                 }
@@ -146,8 +170,26 @@ public class Casino{
         else if(Config.CHIPS > 800000 && Config.CHIPS < 1000000){
             Config.MEMBERSHIP = "H";
         }
-        else{
+        else if(Config.CHIPS > 1000000 && Config.CHIPS < 1200000){
             Config.MEMBERSHIP = "I";
+        }
+        else if(Config.CHIPS > 1200000 && Config.CHIPS < 1500000){
+            Config.MEMBERSHIP = ":star:";
+        }
+        else if(Config.CHIPS > 1500000 && Config.CHIPS < 1800000){
+            Config.MEMBERSHIP = ":star::star:";
+        }
+        else if(Config.CHIPS > 1800000 && Config.CHIPS < 2100000){
+            Config.MEMBERSHIP = ":star::star::star:";
+        }
+        else if(Config.CHIPS > 2100000 && Config.CHIPS < 2500000){
+            Config.MEMBERSHIP = ":star::star::star::star:";
+        }
+        else if(Config.CHIPS > 2500000 && Config.CHIPS < 2900000){
+            Config.MEMBERSHIP = ":star::star::star::star::star:";
+        }
+        else{
+            Config.MEMBERSHIP = ":crown:";
         }
     }
     private static void payday(IMessage message, IUser mentioned){
@@ -164,7 +206,6 @@ public class Casino{
     public static EmbedObject onCasinoInfo(IMessage message){
         Config.readCasino(message);
         EmbedBuilder builder = new EmbedBuilder();
-        Member member = Compatability.convertToJDA(message.getGuild()).getMember(Compatability.convertToJDA(message.getAuthor()));
         builder.withTitle("Casino");
         builder.withDesc(".");
         builder.withColor(message.getAuthor().getColorForGuild(message.getGuild()));
@@ -181,8 +222,7 @@ public class Casino{
     public static EmbedObject onCasinoInfo(IMessage message, IUser mentioned){
         Config.readCasino(mentioned, message.getGuild());
         EmbedBuilder builder = new EmbedBuilder();
-        Member member = Compatability.convertToJDA(message.getGuild()).getMember(Compatability.convertToJDA(message.getAuthor()));
-        builder.withColor(message.getAuthor().getColorForGuild(message.getGuild());
+        builder.withColor(message.getAuthor().getColorForGuild(message.getGuild()));
         builder.withAuthorName(message.getAuthor().getName() + "#" + message.getAuthor().getDiscriminator());
         builder.withAuthorIcon(message.getAuthor().getAvatarURL());
         builder.withTimestamp(LocalDateTime.now(ZoneId.systemDefault()));
@@ -193,6 +233,20 @@ public class Casino{
         builder.appendField("Casino Membership", Config.MEMBERSHIP, false);
 
         return builder.build();
+    }
+    public static EmbedObject casinoPayday(IMessage message, Object payday){
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.withTitle("Casino");
+        builder.withDesc("You have collected your " + nf.format(payday) + " payday");
+        builder.withColor(message.getAuthor().getColorForGuild(message.getGuild()));
+        builder.withAuthorName(message.getAuthor().getName() + "#" + message.getAuthor().getDiscriminator());
+        builder.withAuthorIcon(message.getAuthor().getAvatarURL());
+        builder.withTimestamp(LocalDateTime.now());
+        builder.withFooterIcon(message.getGuild().getIconURL());
+        builder.withFooterText(message.getGuild().getName());
+
+        return builder.build();
+
     }
 
 

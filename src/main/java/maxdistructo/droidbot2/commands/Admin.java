@@ -6,9 +6,7 @@ import maxdistructo.droidbot2.background.Roles;
 import maxdistructo.droidbot2.background.message.Message;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.Image;
 
 import java.io.FileWriter;
@@ -16,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
+import java.util.EnumSet;
+import java.util.List;
 
 import static maxdistructo.droidbot2.BaseBot.client;
 
@@ -135,6 +135,46 @@ public class Admin {
         guild.leave();
         Message.sendDM(guildOwner, "The permissions of " + name + " have been broke in someway. Your guild's data that is stored on the bot has not been affected. Please use the following link to re-add " + name + " to your server. https://discordapp.com/oauth2/authorize?client_id=315313967759097857&scope=bot&permissions=1010035777");
         Message.sendDM(client.getApplicationOwner(), client.getApplicationName() + " was removed from guild " + guild + " in the process of a guild perm reset.");
+    }
+    public static void muteUser(IMessage message, IUser mentioned, int time){
+        IGuild guild = message.getGuild();
+        List<IChannel> channels = guild.getChannels();
+        Object[] channelArray = channels.toArray();
+        int i = 0;
+        while(i < channelArray.length) {
+            IChannel channel = (IChannel) channelArray[i];
+            channel.overrideUserPermissions(mentioned, EnumSet.of(Permissions.READ_MESSAGE_HISTORY, Permissions.READ_MESSAGES), EnumSet.of(Permissions.SEND_MESSAGES, Permissions.SEND_TTS_MESSAGES));
+            i++;
+        }
+        i = 0;
+        Message.sendMessage(message.getChannel(),Message.simpleEmbed(message.getAuthor(), "Mute", mentioned.getDisplayName(message.getGuild()) + " has been muted for " + time + " minutes", message));
+        try {
+            Thread.sleep(60000 * time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        while(i < channelArray.length) {
+            IChannel channel = (IChannel) channelArray[i];
+            channel.removePermissionsOverride(mentioned);
+            i++;
+        }
+
+    }
+    public static void unmuteUser(IMessage message, IUser mentioned){
+        IGuild guild = message.getGuild();
+        List<IChannel> channels = guild.getChannels();
+        Object[] channelArray = channels.toArray();
+        int i = 0;
+        while(i < channelArray.length) {
+            IChannel channel = (IChannel) channelArray[i];
+            channel.removePermissionsOverride(mentioned);
+            i++;
+        }
+        Message.sendMessage(message.getChannel(),Message.simpleEmbed(message.getAuthor(), "Mute", mentioned.getDisplayName(message.getGuild()) + " has been unmuted", message));
+    }
+    public static void unmuteUser(IMessage message, IUser mentioned, IChannel channel){
+        channel.removePermissionsOverride(mentioned);
+        Message.sendMessage(message.getChannel(),Message.simpleEmbed(message.getAuthor(), "Mute", mentioned.getDisplayName(message.getGuild()) + " has been unmuted", message));
     }
 
 
