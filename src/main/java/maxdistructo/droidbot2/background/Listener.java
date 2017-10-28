@@ -32,6 +32,10 @@ import sx.blah.discord.util.RoleBuilder;
 import static maxdistructo.droidbot2.BaseBot.client;
 import static maxdistructo.droidbot2.BaseBot.playerFun;
 import static maxdistructo.droidbot2.BaseBot.pfListener;
+import static maxdistructo.droidbot2.BaseBot.casino;
+import static maxdistructo.droidbot2.BaseBot.casinoListener;
+import static maxdistructo.droidbot2.BaseBot.admin;
+import static maxdistructo.droidbot2.BaseBot.adminListener;
 
 public class Listener {
     public static boolean blackJackRunning = false;
