@@ -16,7 +16,12 @@ public class BaseBot {
     public final static String version = "2.0.4";
     public final static Listener listener = new Listener();
     public final static BackupListener bl = new BackupListener();
-    public final static String changeLog = "";
+    public final static PlayerFunListener pfListener = new PlayerFunListener();
+    public final static CasinoListner casinoListener = new CasinoListener();
+    public final static AdminListener adminListener = new AdminListener();
+    public final static boolean playerFun = true;
+    public final static boolean casino = true;
+    public final static boolean admin = true;
     private final static Path currentRelativePath = Paths.get("");
     public final static String s = currentRelativePath.toAbsolutePath().toString();
 
