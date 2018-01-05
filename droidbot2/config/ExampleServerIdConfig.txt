@@ -9,6 +9,7 @@
 
 "Commands":
 {
+"commands":["commandName", "command2"],
 "commandName":{"enabled":true, "disc":"This is an example command discription.", "moderator":true},
 "command2":{"enabled":true, "disc":"This is an example command discription.", "moderator":false}
 }
