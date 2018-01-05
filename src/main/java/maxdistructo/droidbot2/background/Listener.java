@@ -49,6 +49,7 @@ public class Listener {
     public void onMessageReceivedEvent(MessageReceivedEvent event) throws RateLimitException, DiscordException, MissingPermissionsException {
         try {
             IMessage message = event.getMessage();
+            IGuild guild = message.getGuild();
 
             List<IChannel> mentionedChannelList = message.getChannelMentions();
             Object[] mentionedChannelArray = mentionedChannelList.toArray();
@@ -87,45 +88,45 @@ public class Listener {
             }
 
             if (!Roles.checkForBotAbuse(message)) {
-                if (messageContent[0].equals(prefix + "bj")) { //WIP
+                if (messageContent[0].equals(prefix + "bj") && Command.isEnabled("bj", guild) && Command.isEnabled("casino", guild) && Perms.checkGames(message)) { //WIP
                     message.reply(BlackJack.blackjack(messageContent, message));
                 } else if (messageContent[0].toString().toLowerCase().equals("hit") && Perms.checkGames(message) || messageContent[0].toString().toLowerCase().equals("stay") && Perms.checkGames(message)) {
                     message.reply(BlackJack.continueGame(message, (String[]) messageContent, CasinoConfig.readBJFields(message)));
-                } else if (messageContent[0].equals(prefix + "check")) { //Works
+                } else if (messageContent[0].equals(prefix + "check") && Command.isEnabled("check", guild)) { //Works
                     Message.sendMessage(message.getChannel(), Message.simpleEmbed(message.getAuthor(), "Check", Check.onCheckCommand(messageContent, message), message));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "casino") && messageContent[1].equals("info") && mentioned != null && Perms.checkGames(message)) { //Works except for admin commands
+                } else if (messageContent[0].equals(prefix + "casino") && messageContent[1].equals("info") && mentioned != null && Perms.checkGames(message) && Command.isEnabled("casino", guild)) { //Works except for admin commands
                     message.reply("", Casino.onCasinoInfo(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "casino") && messageContent[1].equals("info") && Perms.checkGames(message)) { //Works except for admin commands
+                } else if (messageContent[0].equals(prefix + "casino") && messageContent[1].equals("info") && Perms.checkGames(message) && Command.isEnabled("casino", guild)) { //Works except for admin commands
                     message.reply("", Casino.onCasinoInfo(message));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "casino") && Perms.checkGames(message)) { //Works except for admin commands
+                } else if (messageContent[0].equals(prefix + "casino") && Perms.checkGames(message) && Command.isEnabled("casino", guild)) { //Works except for admin commands
                     message.reply("", Message.simpleEmbed(message.getAuthor(), "Casino", Casino.onCasinoCommand(messageContent, message, message.getAuthor()), message));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "50") || messageContent[0].equals(prefix + "fifty") && Perms.checkGames(message)) { //Works
+                } else if (messageContent[0].equals(prefix + "50") || messageContent[0].equals(prefix + "fifty") && Perms.checkGames(message) && Command.isEnabled("casino", guild) && Command.isEnabled("fiftyfifty", guild)) { //Works
                     message.reply("", Message.simpleEmbed(message.getAuthor(), "FiftyFifty", FiftyFifty.onFiftyCommand(messageContent, message), message));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "fortune")) { //Works
+                } else if (messageContent[0].equals(prefix + "fortune") && Command.isEnabled("fortune", guild) ){ //Works
                     message.reply("", Message.simpleEmbed(message.getAuthor(), "Fortune", Fortune.onFortuneCommand(messageContent, message), message));
                     message.delete();
                 }
                 //else if(messageContent[0].equals(prefix + "game")){ //Broke
                 //  message.reply(GameCommand.onGameCommand(messageContent, message));
                 // }
-                else if (messageContent[0].equals(prefix + "info")) { //Works Well
+                else if (messageContent[0].equals(prefix + "info") && Command.isEnabled("info", guild) ){ //Works Well
                     Message.sendMessage(message.getChannel(), Message.simpleEmbed(message.getAuthor(), "Info", Info.onInfoCommand(messageContent, message, mentioned), message));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "insult")) { //Works
+                } else if (messageContent[0].equals(prefix + "insult") && Command.isEnabled("insult", guild)) { 
                     Message.sendMessage(message.getChannel(), Message.simpleEmbed(message.getAuthor(), "Insult", Insult.onInsultCommand(messageContent, message, mentioned), message));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "debug")) { //Needs perms set.
+                } else if (messageContent[0].equals(prefix + "debug") && Command.isEnabled("debug", guild)) { 
                     message.reply("", Message.simpleEmbed(message.getAuthor(), "Debug", Debug.onDebugCommand((String[]) messageContent, message), message));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "shutdown")) { //Works
+                } else if (messageContent[0].equals(prefix + "shutdown")) {
                     message.reply("", Message.simpleEmbed(message.getAuthor(), "Shutdown", Shutdown.onShutdownCommand(message), message));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "help")) {
+                } else if (messageContent[0].equals(prefix + "help")) { //Need to setup new command schema for help command.
                     if(Perms.checkAdmin(message)){
                         Help.onAdminHelpCommand(message);
                     }
@@ -133,46 +134,46 @@ public class Listener {
                         Message.sendDM(message.getAuthor(), Help.onHelpCommand());
                     }
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "allin") && Perms.checkGames(message)) {
+                } else if (messageContent[0].equals(prefix + "allin") && Perms.checkGames(message) && Command.isEnabled("casino", guild) && Command.isEnabled("allin", guild)) {
                     message.reply("", Message.simpleEmbed(message.getAuthor(), "Allin", Allin.onAllinCommand(messageContent, message), message));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "say") && channelMention != null) {
+                } else if (messageContent[0].equals(prefix + "say") && channelMention != null && Command.isEnabled("say", guild)) {
                     Message.sendMessage(channelMention, Say.onSayCommand(messageContent, message, channelMention));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "say")) {
+                } else if (messageContent[0].equals(prefix + "say") && Command.isEnabled("say", guild)) {
                     Message.sendMessage(message.getChannel(), Say.onSayCommand(messageContent, message, channelMention));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "spam")) {
+                } else if (messageContent[0].equals(prefix + "spam") && Command.isEnabled("spam", guild) {
                     Message.sendMessage(message.getChannel(), Spam.onSpamCommand(messageContent, message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "slap")) {
+                } else if (messageContent[0].equals(prefix + "slap") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onSlapCommand(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "tnt")) {
+                } else if (messageContent[0].equals(prefix + "tnt") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onTntCommand(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "kiss")) {
+                } else if (messageContent[0].equals(prefix + "kiss") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onKissCommand(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "hug")) {
+                } else if (messageContent[0].equals(prefix + "hug") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onHugCommand(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "poke")) {
+                } else if (messageContent[0].equals(prefix + "poke") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onPokeCommand(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "respect") || messageContent[0].equals("/f")) {
+                } else if (messageContent[0].equals(prefix + "respect") || messageContent[0].equals("/f") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onPayRespects(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "banhammer")) {
+                } else if (messageContent[0].equals(prefix + "banhammer") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onBanHammer(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "shoot")) {
+                } else if (messageContent[0].equals(prefix + "shoot") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onShootCommand(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "stab")) {
+                } else if (messageContent[0].equals(prefix + "stab") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onStabCommand(message, mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "ping")) {
+                } else if (messageContent[0].equals(prefix + "ping") && Command.isEnabled("ping", guild)) {
                     Ping.onPingCommand(message);
                     message.delete();
                 }//else if (messageContent[0].equals(prefix + "mute")) {
@@ -182,21 +183,21 @@ public class Listener {
                     //     message.edit(PlayerFun.onLennyCommand());
                     // } else if (messageContent[0].equals("/shrug")) { Won't work cause F U Discord.
                     //      message.edit(PlayerFun.onShrugCommand());
-                 else if (messageContent[0].equals(prefix + "xp")) {
+                 else if (messageContent[0].equals(prefix + "xp") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onXpCommand(mentioned));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "punch")) {
+                } else if (messageContent[0].equals(prefix + "punch") && Command.isEnabled("fun", guild)) {
                     Message.sendMessage(message.getChannel(), PlayerFun.onPunchCommand(message, mentioned));
                     message.delete();
                 } else if (messageContent[0].equals(prefix + "@admin") && messageContent[1].equals("addMod") && Perms.checkAdmin(message)) {
                     Message.sendMessage(message.getChannel(), Admin.addMod(message, mentioned));
                 } else if (messageContent[0].equals(prefix + "@admin") && messageContent[1].equals("addAdmin") && Perms.checkAdmin(message)) {
                     Message.sendMessage(message.getChannel(), Admin.addAdmin(message, mentioned));
-                } else if (messageContent[0].equals(prefix + "@casino") && messageContent[1].equals("balance") && messageContent[2].equals("add") && Config.converToInt(messageContent[4]) != 0 && mentioned != null && Perms.checkAdmin(message)) {
+                } else if (messageContent[0].equals(prefix + "@casino") && messageContent[1].equals("balance") && messageContent[2].equals("add") && Config.converToInt(messageContent[4]) != 0 && mentioned != null && Perms.checkAdmin(message) && Command.isEnabled("casino", guild)) {
                     Message.sendMessage(message.getChannel(), Admin.addCasinoBalance(messageContent, message, mentioned));
-                } else if (messageContent[0].equals(prefix + "@casino") && messageContent[1].equals("balance") && messageContent[2].equals("remove") && Config.converToInt(messageContent[4]) != 0 && mentioned != null && Perms.checkAdmin(message)) {
+                } else if (messageContent[0].equals(prefix + "@casino") && messageContent[1].equals("balance") && messageContent[2].equals("remove") && Config.converToInt(messageContent[4]) != 0 && mentioned != null && Perms.checkAdmin(message) && Command.isEnabled("casino", guild)) {
                     Message.sendMessage(message.getChannel(), Admin.subtractCasinoBalance(messageContent, message, mentioned));
-                } else if (messageContent[0].equals(prefix + "@casino") && messageContent[1].equals("balance") && messageContent[2].equals("set") && Config.converToInt(messageContent[4]) != 0 && mentioned != null && Perms.checkAdmin(message)) {
+                } else if (messageContent[0].equals(prefix + "@casino") && messageContent[1].equals("balance") && messageContent[2].equals("set") && Config.converToInt(messageContent[4]) != 0 && mentioned != null && Perms.checkAdmin(message) && Command.isEnabled("casino", guild)) {
                     Message.sendMessage(message.getChannel(), Admin.setCasinoBalance(messageContent, message, mentioned));
                 } else if (messageContent[0].equals(prefix + "@admin") && messageContent[1].equals("botAbuse") && Perms.checkAdmin(message)) {
                     Message.sendMessage(message.getChannel(), Admin.setBotAbuser(messageContent, message, mentioned));
@@ -210,19 +211,19 @@ public class Listener {
                     Message.sendMessage(message.getChannel(), Admin.changeRolePerm(message, messageContent));
                 } else if (messageContent[0].equals(prefix + "@admin") && messageContent[1].equals("restart")) {
                     Restart.run(message);
-                } else if (messageContent[0].equals(prefix + "remindme") || messageContent[0].equals(prefix + "reminder")) {
+                } else if (messageContent[0].equals(prefix + "remindme") || messageContent[0].equals(prefix + "reminder") && Command.isEnabled("reminder", guild)){
                     Reminder.onReminderCommand(messageContent, message);
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "emote") && messageContent[1].equals("add")) {
+                } else if (messageContent[0].equals(prefix + "emote") && messageContent[1].equals("add") && Command.isEnabled("emote", guild)) {
                     Emote.addEmoteCommand(message, messageContent);
                     message.addReaction(ReactionEmoji.of("/:heavy_check_mark:"));
-                } else if (messageContent[0].equals(prefix + "emote") && messageContent[1].equals("request")) {
+                } else if (messageContent[0].equals(prefix + "emote") && messageContent[1].equals("request") && Command.isEnabled("emote", guild)) {
                     Emote.requestEmoteCommand(message, messageContent);
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "emote")) {
+                } else if (messageContent[0].equals(prefix + "emote") && Command.isEnabled("emote", guild)) {
                     Emote.onEmoteCommand(message, messageContent);
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "@copyPerms") && Perms.checkOwner_Guild(message)) {
+                } else if (messageContent[0].equals(prefix + "@copyPerms") && Perms.checkOwner_Guild(message)) { 
                     System.out.println("Getting Role 1 - User's Highest Role");
                     IRole role1 = message.getAuthor().getRolesForGuild(message.getGuild()).get(0);
                     System.out.println("Getting Role 2 - Your Specified Role");
@@ -240,13 +241,13 @@ public class Listener {
                 } else if (messageContent[0].equals(prefix + "@admin") && messageContent[1].equals("setColor") && !messageContent[2].equals(null) && Perms.checkMod(message)){
                     Roles.changeColor(Roles.getRole(message,(String) messageContent[2]), (String) messageContent[3]);
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "@mute") && !messageContent[2].equals(null) && Perms.checkAdmin(message)){ //!@mute @User time
+                } else if (messageContent[0].equals(prefix + "@mute") && !messageContent[2].equals(null) && Perms.checkAdmin(message) && Command.isEnabled("mute", guild)){ //!@mute @User time
                     Admin.muteUser(message, mentioned, Config.converToInt(messageContent[2]));
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "@unmute") && Perms.checkAdmin(message) && channelMention != null){
+                } else if (messageContent[0].equals(prefix + "@unmute") && Perms.checkAdmin(message) && channelMention != null && Command.isEnabled("mute", guild)){
                     Admin.unmuteUser(message, mentioned, channelMention);
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "@unmute") && Perms.checkAdmin(message)){
+                } else if (messageContent[0].equals(prefix + "@unmute") && Perms.checkAdmin(message) && Command.isEnabled("mute", guild)){
                     Admin.unmuteUser(message, mentioned);
                     message.delete();
                 } else if (messageContent[0].equals(prefix + "@announce")){
@@ -256,8 +257,7 @@ public class Listener {
                     IRole role = Roles.getRole(message, (String)messageContent[2]);
                     role.changeName((String)messageContent[3]);
                     message.delete();
-                } else if (messageContent[0].equals(prefix + "fixServerConfig")){
-                    IGuild guild = message.getGuild();
+                } else if (messageContent[0].equals(prefix + "fixServerConfig") && Perms.checkOwner_Guild(message){
                     RoleBuilder rb = new RoleBuilder(guild);
                     rb.withName("Voice Chatting");
                     rb.setHoist(false);
@@ -303,8 +303,10 @@ public class Listener {
         IVoiceChannel channel = event.getVoiceChannel();
         IUser user = event.getUser();
         IGuild guild = channel.getGuild();
+        if(Command.isEnabled("voiceChannel", guild)){
         List<IRole> roles = guild.getRolesByName("Voice Chatting");
         user.addRole(roles.get(0));
+        }
     }
 
     @EventSubscriber
@@ -312,8 +314,10 @@ public class Listener {
         IVoiceChannel channel = event.getVoiceChannel();
         IUser user = event.getUser();
         IGuild guild = channel.getGuild();
+        if(Command.isEnabled("voiceChannel", guild)){
         List<IRole> roles = guild.getRolesByName("Voice Chatting");
         user.removeRole(roles.get(0));
+        }
     }
 
     @EventSubscriber
@@ -357,8 +361,8 @@ public class Listener {
 
 
     }
-    @EventSubscriber
-    public static void onGuildJoinEvent(GuildCreateEvent event){
+    
+    /* public static void onGuildJoinEvent(GuildCreateEvent event){ //Disabled due to Discord4J bugs. It also needs more testing.
         IGuild guild = event.getGuild();
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
@@ -407,7 +411,7 @@ public class Listener {
 
 
         Message.sendMessage(guild.getDefaultChannel(), "Thank you for letting me join your server. I am " + client.getOurUser().getName() + " and my features can be found by using the command " + prefix + "help. Please DM " + client.getApplicationOwner().mention() + " to add additional moderators/admins for your server.");
-
+*/
     }
 }
 
